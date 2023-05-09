@@ -21,10 +21,7 @@
 
 #Requires -Version 7.0
 
-Import-Module Microsoft.Graph.Users
-Import-Module Microsoft.Graph.Users.Actions
-Import-Module Microsoft.Graph.Groups
-Import-Module ExchangeOnlineManagement
+
 
 $chkDistroGroups_CheckedChanged = {
 	$btnExecute.enabled         = $true
