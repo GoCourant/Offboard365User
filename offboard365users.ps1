@@ -21,7 +21,18 @@
 
 #Requires -Version 7.0
 
+if ((Get-InstalledModule -Name "Microsoft.Graph") -eq $null) {
+    Install-Module -Name Microsoft.Graph
+} 
 
+if ((Get-InstalledModule -Name "ExchangeOnlineManagement") -eq $null) {
+    Install-Module -Name ExchangeOnlineManagement
+}
+
+Import-Module Microsoft.Graph.Users
+Import-Module Microsoft.Graph.Users.Actions
+Import-Module Microsoft.Graph.Groups
+Import-Module ExchangeOnlineManagement
 
 $chkDistroGroups_CheckedChanged = {
 	$btnExecute.enabled         = $true
