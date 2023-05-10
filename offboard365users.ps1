@@ -13,7 +13,7 @@
 .NOTES
     File Name           :offboard365users.ps1
     Author              :Chien Nguyen (chien@gocourant.com)
-    Current Version     :0.9.5b
+    Current Version     :0.9.7b
     Copyright           :GNU General Public Licenses
 
 
