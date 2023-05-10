@@ -1,4 +1,4 @@
-# Offboard365User
+# Offboard 365 User
 
 ### Pre-Requisites
 - PowerShell 7.0 or higher
