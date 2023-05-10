@@ -108,7 +108,7 @@ $btnExecute_Click = {
     $txtOutput.AppendText("`r`n$UPN has been offboarded")
     $btnExecute.enabled = $false
     Disconnect-MgGraph
-    Disconnect-ExchangeOnline
+    Disconnect-ExchangeOnline -Confirm:$false
 }
 $btnM365_Click = {
     $txtOutput.Text             = "Connecting to Microsoft 365 Exchange Online...."
