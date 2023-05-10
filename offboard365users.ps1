@@ -56,6 +56,8 @@ $btnExecute_Click = {
     $UserID = (Get-MgUser -UserId $UPN).Id
     $OffboardingDN = (Get-EXOMailbox -Identity $UPN -IncludeInactiveMailbox).DistinguishedName
 
+    $RemovedTeams = Get-MgUserMemberOf -UserId $UserID -All | Where-Object {$_.AdditionalProperties["groupTypes"] -eq "Unified"}
+
     if ($chkBlockSignIn.checked){
         $txtOutput.AppendText("`r`nLogging out of all sessions and blocking sign in for $UPN...")
         Update-MgUser -UserId $UserID -AccountEnabled:$false
@@ -69,6 +71,13 @@ $btnExecute_Click = {
         Get-MgUserMemberOf -UserId $UserID -All | Where-Object {$_.AdditionalProperties["groupTypes"] -eq "Unified"} | foreach-object {
             Remove-MgGroupMemberByRef -GroupId $_.Id -DirectoryObjectId $UserID
         }
+
+        $txtOutput.AppendText("`r`nRemoved from the following Teams")
+        foreach ($team in $RemovedTeams) {
+            $friendlyTeams = $team.AdditionalProperties["displayName"]
+            $txtOutput.AppendText("`r`n$friendlyTeams")
+        }
+
         $chkTeams.checked = $false
         $chkTeams.enabled = $false
     }
