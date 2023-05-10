@@ -18,14 +18,11 @@
 
 
 #>
-
-#Requires -Version 7.0
-
-if ((Get-InstalledModule -Name "Microsoft.Graph") -eq $null) {
+if ($null -eq (Get-InstalledModule -Name "Microsoft.Graph")) {
     Install-Module -Name Microsoft.Graph
 } 
 
-if ((Get-InstalledModule -Name "ExchangeOnlineManagement") -eq $null) {
+if ($null -eq (Get-InstalledModule -Name "ExchangeOnlineManagement")) {
     Install-Module -Name ExchangeOnlineManagement
 }
 
@@ -62,14 +59,14 @@ $btnExecute_Click = {
     if ($chkBlockSignIn.checked){
         $txtOutput.AppendText("`r`nLogging out of all sessions and blocking sign in for $UPN...")
         Update-MgUser -UserId $UserID -AccountEnabled:$false
-        Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/users/$UserID/microsoft.graph.revokeSignInSessions" -Method POST
+        Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/v1.0/users/$UserID/revokeSignInSessions" -Method POST
         $chkBlockSignIn.checked = $false
         $chkBlockSignIn.enabled = $false
     }
 
     if ($chkTeams.checked){
         $txtOutput.AppendText("`r`nRemoving $UPN from all Teams...")
-        Get-MgUserMemberOf -UserId $UserID -All | foreach-object {
+        Get-MgUserMemberOf -UserId $UserID -All | Where-Object {$_.AdditionalProperties["groupTypes"] -eq "Unified"} | foreach-object {
             Remove-MgGroupMemberByRef -GroupId $_.Id -DirectoryObjectId $UserID
         }
         $chkTeams.checked = $false
@@ -78,7 +75,7 @@ $btnExecute_Click = {
 
     if ($chkDistroGroups.checked){
         $txtOutput.AppendText("`r`nRemoving $UPN from all distribution groups...")
-        Get-EXORecipient -Filter "Members -eq '$OffboardingDN'" | foreach-object {
+        Get-EXORecipient -Filter "Members -eq '$OffboardingDN'" -RecipientTypeDetails 'MailUniversalDistributionGroup', 'MailUniversalSecurityGroup' | foreach-object {
             Remove-DistributionGroupMember -Identity $_.ExternalDirectoryObjectId -Member $OffboardingDN -BypassSecurityGroupManagerCheck -Confirm:$false
         }
         $chkDistroGroups.checked = $false
