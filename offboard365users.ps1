@@ -57,6 +57,7 @@ $btnExecute_Click = {
     $OffboardingDN = (Get-EXOMailbox -Identity $UPN -IncludeInactiveMailbox).DistinguishedName
 
     $RemovedTeams = Get-MgUserMemberOf -UserId $UserID -All | Where-Object {$_.AdditionalProperties["groupTypes"] -eq "Unified"}
+    $RemovedGroups = Get-EXORecipient -Filter "Members -eq '$OffboardingDN'" -RecipientTypeDetails 'MailUniversalDistributionGroup', 'MailUniversalSecurityGroup'
 
     if ($chkBlockSignIn.checked){
         $txtOutput.AppendText("`r`nLogging out of all sessions and blocking sign in for $UPN...")
@@ -72,7 +73,7 @@ $btnExecute_Click = {
             Remove-MgGroupMemberByRef -GroupId $_.Id -DirectoryObjectId $UserID
         }
 
-        $txtOutput.AppendText("`r`nRemoved from the following Teams")
+        $txtOutput.AppendText("`r`nRemoved from the following Teams:")
         foreach ($team in $RemovedTeams) {
             $friendlyTeams = $team.AdditionalProperties["displayName"]
             $txtOutput.AppendText("`r`n$friendlyTeams")
@@ -86,6 +87,12 @@ $btnExecute_Click = {
         $txtOutput.AppendText("`r`nRemoving $UPN from all distribution groups...")
         Get-EXORecipient -Filter "Members -eq '$OffboardingDN'" -RecipientTypeDetails 'MailUniversalDistributionGroup', 'MailUniversalSecurityGroup' | foreach-object {
             Remove-DistributionGroupMember -Identity $_.ExternalDirectoryObjectId -Member $OffboardingDN -BypassSecurityGroupManagerCheck -Confirm:$false
+        }
+
+        $txtOutput.AppendText("`r`nRemoved from the following Groups:")
+        foreach ($group in $RemovedGroups) {
+            $friendlyGroups = $group.DisplayName
+            $txtOutput.AppendText("`r`n$friendlyGroups")
         }
         $chkDistroGroups.checked = $false
         $chkDistroGroups.enabled = $false
